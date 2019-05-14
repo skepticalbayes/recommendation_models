@@ -18,3 +18,31 @@ The collaborative filtering problem can be solved using matrix factorization. Su
 
 If a user has never rated an item or shown any implied interest in it, the matrix entry is zero. Figure 1 shows a representation of a MovieLens rating matrix.
 
+![alt text](https://github.com/skepticalbayes/recommendation_models/blob/master/recommendation-system-tensorflow-movielens-rating-matrix.svg)
+
+**Figure 1.** The MovieLens ratings matrix
+Ratings in the MovieLens dataset range from 1 to 5. Empty rating entries have value 0, meaning that a given user hasn't rated the item.
+
+### Defining the matrix factorization method
+A ratings matrix consists of a matrix R, where entries  are ratings of user  for item . For many internet applications, these matrices are large, with millions of users and millions of different items. They are also sparse, meaning that each user has typically rated, viewed, or purchased only a small number of items relative to the entire set. The vast majority of matrix entries, often greater than 99%, are zero.
+
+The matrix factorization method assumes that there is a set of attributes common to all items, with items differing in the degree to which they express these attributes. Furthermore, the matrix factorization method assumes that each user has their own expression for each of these attributes, independent of the items. In this way, a user's item rating can be approximated by summing the user's strength for each attribute weighted by the degree to which the item expresses this attribute. These attributes are sometimes called hidden or latent factors.
+
+Intuitively, it's easy to see that these hypothetical latent factors actually exist. In the case of movies, it's clear that many users prefer certain genres, actors, or directors. These categories represent latent factors that, while obvious, are still quite useful. For example, genre preferences manifest themselves in the movies that users tend to like, and people with similar genre preferences presumably like similar movies. Much of the power of the matrix factorization approach to collaborative filtering derives from the fact that it's not necessary to know the number of genres or actors or other categories that might comprise the entirety of a given user's preferences. It's simply assumed there are an arbitrary number of them.
+
+### Transforming the matrix to represent latent factors
+To translate the existence of latent factors into the matrix of ratings, you do this: for a set of users U of size u and items I of size i, you pick an arbitrary number k of latent factors and factorize the large matrix R into two much smaller matrices X (the "row factor") and Y (the "column factor"). Matrix X has dimension u × k, and Y has dimension k × i. This is shown in figure 2.
+
+
+![alt text](https://github.com/skepticalbayes/recommendation_models/blob/master/recommendation-system-tensorflow-row-and-column-factors.svg)
+
+**Figure 2.** Approximating the ratings matrix with row and column factors
+In linear algebra this is called a low-rank approximation. You can view this process as compressing the sparse information in R into the much lower dimensional spaces u × k and k × i. The matrix R', obtained when the low-rank matrices X and Y are multiplied, represents an approximation of R.
+
+Every user is represented by a vector in this k-dimensional space, and each row  in X corresponds to the strength of the user's preferences for these k factors. Similarly, every item represented by a vector in this k-dimensional space has a column  in Y corresponding to the item's expression of the same k factors.
+
+## WALS compared to other techniques
+Many matrix factorization techniques are used for collaborative filtering, including SVD and Stochastic Gradient Descent. In some cases these techniques give better reduced-rank approximations than WALS. It's beyond the scope of this article to compare the strengths and weaknesses of different collaborative filtering methods, but it's worth noting the following advantages of WALS:
+
+The weights used in WALS make it suitable for implicit ratings, but WALS can also be applied to explicit rating datasets such as MovieLens.
+WALS includes algorithmic optimizations that make it easy to incorporate weights and efficiently calculate row and column factor updates. For details, see the paper Collaborative Filtering for Implicit Feedback Datasets. These optimizations are built into the WALS TensorFlow code base.
